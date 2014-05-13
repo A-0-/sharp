@@ -225,12 +225,19 @@ sharp.cache(50); // { current: 49, high: 115, limit: 50 }
 
 	npm test
 
-Running the tests requires both ImageMagick and GraphicsMagick plus one of either libmagick++-dev or libgraphicsmagick++.
+Running the tests requires additional dependencies.
+
+### Install test dependencies on Mac OS
 
 	brew install imagemagick
 	brew install graphicsmagick
+	brew install cairo
+	brew install pango
+	brew install giflib
 
-	sudo apt-get install imagemagick graphicsmagick libmagick++-dev
+### Install test dependencies on Ubuntu Linux
+
+	sudo apt-get install imagemagick graphicsmagick libmagick++-dev libcairo2-dev libpango1.0-dev libgif-dev
 
 ## Performance
 

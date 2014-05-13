@@ -4,6 +4,8 @@ var path = require("path");
 var imagemagick = require("imagemagick");
 var imagemagickNative = require("imagemagick-native");
 var gm = require("gm");
+var Canvas = require("canvas"),
+  Image = Canvas.Image;
 var async = require("async");
 var assert = require("assert");
 var Benchmark = require("benchmark");
@@ -58,9 +60,9 @@ async.series({
           quality: 80,
           width: width,
           height: height,
-					format: 'JPEG'
+          format: 'JPEG'
         });
-				deferred.resolve();
+        deferred.resolve();
       }
     }).add("gm-buffer-file", {
       defer: true,
@@ -106,6 +108,19 @@ async.series({
             assert.notStrictEqual(null, buffer);
             deferred.resolve();
           }
+        });
+      }
+    }).add("canvas-buffer-buffer", {
+      defer: true,
+      fn: function(deferred) {
+        var img = new Image();
+        img.src = inputJpgBuffer;
+        var canvas = new Canvas(width, height);
+        var context = canvas.getContext("2d");
+        context.imageSmoothingEnabled = true;
+        context.drawImage(img, 0, 0, width, height);
+        canvas.jpegStream({quality: 80}).on("end", function(err) {
+          deferred.resolve();
         });
       }
     }).add("sharp-buffer-file", {
@@ -221,9 +236,9 @@ async.series({
           srcData: inputPngBuffer,
           width: width,
           height: height,
-					format: 'PNG'
+          format: 'PNG'
         });
-				deferred.resolve();
+        deferred.resolve();
       }
     }).add("gm-file-file", {
       defer: true,
@@ -246,6 +261,19 @@ async.series({
             assert.notStrictEqual(null, buffer);
             deferred.resolve();
           }
+        });
+      }
+    }).add("canvas-buffer-buffer", {
+      defer: true,
+      fn: function(deferred) {
+        var img = new Image();
+        img.src = inputPngBuffer;
+        var canvas = new Canvas(width, height);
+        var context = canvas.getContext("2d");
+        context.imageSmoothingEnabled = true;
+        context.drawImage(img, 0, 0, width, height);
+        canvas.pngStream().on("end", function(err) {
+          deferred.resolve();
         });
       }
     }).add("sharp-buffer-file", {
@@ -493,7 +521,7 @@ async.series({
     }).on("complete", function() {
       callback(null, this.filter("fastest").pluck("name"));
     }).run();
-  }	
+  }
 }, function(err, results) {
   assert(!err, err);
   Object.keys(results).forEach(function(format) {
